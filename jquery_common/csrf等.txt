@@ -1,0 +1,100 @@
+CSRF说明：
+全局：settings里面注释打开，代表所有views都需要csrf验证
+
+　　中间件 django.middleware.csrf.CsrfViewMiddleware
+
+局部：
+注释全局时，对个别需要csrf验证的views使用
+@csrf_protect，为当前函数强制设置防跨站请求伪造功能，即便settings中没有设置全局中间件。
+例外
+@csrf_exempt，取消当前函数防跨站请求伪造功能，即便settings中设置了全局中间件。
+注：from django.views.decorators.csrf import csrf_exempt,csrf_protect
+
+Form方式的csrf验证：  {% csrf_token %}
+
+    <form action="/login/" method="POST">
+        {% csrf_token %}
+        <input type="text" name="user" placeholder="用户名"/>
+        <input type="password" name="pwd" placeholder="密码"/>
+        <input type="submit" value="确认">
+        <input type="checkbox" name="expire_time"/>10秒免登陆
+        <input type="button" value="按钮1" id="btn1"/>
+        <input type="button" value="按钮2" id="btn2"/>
+
+    </form>
+
+
+	
+CSRF 在GET|HEAD|OPTIONS|TRACE等提交方式中，不需要加验证，只需要在post中加验证
+官方过滤提交方式后的写法：
+
+    <script type="text/javascript">
+        var csrftoken = $.cookie('csrftoken');
+  
+        function csrfSafeMethod(method) {
+            // these HTTP methods do not require CSRF protection
+            return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+        }
+		
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                }
+            }
+        });
+		
+        function Do(){
+  
+            $.ajax({
+                url:"/app01/test/",
+                data:{id:1},
+                type:'POST',
+                success:function(data){
+                    console.log(data);
+                }
+            });
+  
+        }
+    </script>
+
+
+
+测试环境写法
+Ajax方式提交csrf验证
+  <script src="/static/jquery-3.3.1.min.js"></script>
+    <script src="/static/jquery.cookie.js"></script>
+    <script>
+        $(function () {
+            
+			全局提交方式
+			$.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader('X-CSRFtoken', $.cookie('csrftoken'));
+                }
+            });
+
+            $("#btn1").click(function () {
+                console.log($.cookie('csrftoken'));
+                $.ajax({
+                    url: '/login/',
+                    type: 'POST',
+                    data: {'user': 'root', 'pwd': '123'},
+					局部提交方式
+{#                    headers: {'X-CSRFtoken': $.cookie('csrftoken')},#}
+                    success: function(arg){}
+                })
+            });
+            $("#btn2").click(function () {
+                console.log($.cookie('csrftoken'));
+                $.ajax({
+                    url: '/login/',
+                    type: 'POST',
+                    data: {'user': 'root', 'pwd': '123'},
+{#                    局部配置csrf方法#}
+{#                    headers: {'X-CSRFtoken': $.cookie('csrftoken')},#}
+                    success: function(arg){}
+                })
+            })
+        });
+    </script>

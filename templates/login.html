@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form action="/login/" method="POST">
+        {% csrf_token %}
+        <input type="text" name="user" placeholder="用户名"/>
+        <input type="password" name="pwd" placeholder="密码"/>
+        <input type="submit" value="确认">
+        <input type="checkbox" name="expire_time"/>10秒免登陆
+        <input type="button" value="按钮1" id="btn1"/>
+        <input type="button" value="按钮2" id="btn2"/>
+
+    </form>
+    <script src="/static/jquery-3.3.1.min.js"></script>
+    <script src="/static/jquery.cookie.js"></script>
+    <script>
+        $(function () {
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader('X-CSRFtoken', $.cookie('csrftoken'));
+                }
+            });
+
+            $("#btn1").click(function () {
+                console.log($.cookie('csrftoken'));
+                $.ajax({
+                    url: '/login/',
+                    type: 'POST',
+                    data: {'user': 'root', 'pwd': '123'},
+{#                    headers: {'X-CSRFtoken': $.cookie('csrftoken')},#}
+                    success: function(arg){}
+                })
+            });
+            $("#btn2").click(function () {
+                console.log($.cookie('csrftoken'));
+                $.ajax({
+                    url: '/login/',
+                    type: 'POST',
+                    data: {'user': 'root', 'pwd': '123'},
+{#                    局部配置csrf方法#}
+{#                    headers: {'X-CSRFtoken': $.cookie('csrftoken')},#}
+                    success: function(arg){}
+                })
+            })
+        });
+    </script>
+</body>
+</html>

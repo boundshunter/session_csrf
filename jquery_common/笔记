@@ -1,0 +1,295 @@
+1、基本生命周期 （补充）
+2、URL
+    /index/ index
+    /list/(\d+) index()
+    /list/(\d+) name='li' index() 反生成url
+    /list/(\d+) include index()
+
+3、views
+    request.body
+        request.POST.get|getlist
+        request.GET.get|getlist
+        request.FILES.get|getlist
+
+    request.Meta()
+        request.path_info
+        request.COOKIES
+        request.method(POST,GET,PUT,DELETE....)
+
+    request.body
+
+    return HttpResponse('adadfadadsd')
+           render,
+           redirect
+
+4.Model 操作（原生SQL)
+    表内容操作:
+        models.TB.objects.create()
+        obj = models.TB(..)
+        obj.save
+
+        切片
+        models.TB.objects.all()[7:10]
+
+        models.TB.objects.all().delete()
+        models.TB.objects.all().order_bu('')
+        models.TB.objects.distinct()
+
+        models.TB.objects.filter().update()
+        models.TB.objects.filter(id__in=[1,2,3])
+        models.TB.objects.filter().update().first()
+        models.TB.objects.filter(**(dic)).delete()
+        models.TB.objects.values
+        models.TB.objects.value_list
+        models.TB.objects.get
+        models.TB.objects.filter().count
+        models.TB.objects.filter(双下划线跨表).count
+        models.TB.objects.filter(id__range=[1,5])
+        models.TB.objects.filter(id__gt=1).count
+        models.TB.objects.filter(id__lt=1).count
+        models.TB.objects.filter(id__lte=1).count
+        models.TB.objects.exclude(id__gte=1).count
+
+        多对多
+
+        obj.set
+        obj.add(1,2,3)
+        obj.add([1,2,3])
+        obj.remove([1,2,3])
+        obj.clear()
+
+
+
+
+
+
+5、模板语言
+    a.基本操作
+        def func(request):
+            return render(request,'index.html', {'val': [1,2,3]}
+
+        html:
+            <h1>{{ val.0 }}</h1>
+    b.继承
+        extends “/xx/layout.html” 模板继承路径
+    c.include
+        组件
+    d. simple_tag, filter
+        simple_tag 不可用于if else条件
+        filter 参数不可加空格
+
+
+		
+		
+session 过程
+	登录
+	# 生成随机字符串
+	# 写到用户浏览器cookie
+	# 保存到session中
+	# 在随机字符串对应的字典中设置相关内容
+	
+	认证后
+	# 获取当前用户的随机字符串
+	# 根据随机字符串获取对应的信息
+	
+	
+	
+session 操作
+	获取值
+	request.session['k1'] 不存在报错
+	request.session.get['k1',None] 不报错
+	设置值
+	request.session['k1'] = 123
+	request.session.setdefault('k1',123) 存在则不设置值
+	删除值
+	del request.session['k1'] 删除
+	
+	request.session.clear() #应用场景，注销时，登录信息全部删除，使用
+	
+	删除当前用户所有session数据
+	request.session.delete("session_key")
+	
+	所有的键、值、键值对,多个用户循环获取
+	request.session.keys()
+	request.session.values()
+	request.session.items()
+	request.session.iterkeys()
+	request.session.itervalues()
+	request.session.iteritems()
+	
+	用户session的随机字符串
+	request.session.session_key
+	
+	将所有session失效日期小于当前日期的数据删除
+	request.session.clear_expired()
+	
+	# 检查用户session的随机字符串，在数据库中是否存在
+	request.session.exist("session_key")
+	
+	request.session.set_expiry(value)
+		* value是个整数，session会在这些秒后时效
+		* value是个datetime或者timedelta，session会在这个时间候失效
+		* 如果value是0,用户关闭浏览器session就会失效。
+		* 如果value是None,session会依赖全局session失效策略。
+		
+	配置文件中的默认操作
+						
+		SESSION_ENGINE = 'django.contrib.sessions.backends.db'   # 引擎（默认）		 
+		SESSION_COOKIE_NAME ＝ "sessionid"                       # Session的cookie保存在浏览器上时的key，即：sessionid＝随机字符串（默认）
+		SESSION_COOKIE_PATH ＝ "/"                               # Session的cookie保存的路径（默认）
+		SESSION_COOKIE_DOMAIN = None                             # Session的cookie保存的域名（默认）
+		SESSION_COOKIE_SECURE = False                            # 是否Https传输cookie（默认）
+		SESSION_COOKIE_HTTPONLY = True                           # 是否Session的cookie只支持http传输（默认）
+		SESSION_COOKIE_AGE = 1209600                             # Session的cookie失效日期（2周）（默认）
+		SESSION_EXPIRE_AT_BROWSER_CLOSE = False                  # 是否关闭浏览器使得Session过期（默认）
+		
+		*****SESSION_SAVE_EVERY_REQUEST = False                       # 是否每次请求都保存Session，默认修改之后才保存（默认false）
+		
+		
+	
+	session存储方式
+	1、数据库
+		SESSION_ENGINE = 'django.contrib.sessions.backends.db'   # 引擎（默认
+	2、缓存
+		SESSION_ENGINE = 'django.contrib.sessions.backends.cache'  # 引擎
+		SESSION_CACHE_ALIAS = 'default'                            # 使用的缓存别名（默认内存缓存，也可以是memcache），此处别名依赖缓存的设置
+	3、先缓存再数据库
+		 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'        # 引擎
+	4、加密cookie_session
+		 SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'   # 引擎
+	
+	文件缓存设置
+	# 此缓存将内容保存至文件
+    # 配置：
+
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+                'LOCATION': '/var/tmp/django_cache',
+            }
+        }
+    # 注：其他配置同开发调试版本
+	
+	数据库缓存设置
+	    # 此缓存将内容保存至数据库
+
+    # 配置：
+        CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+                'LOCATION': 'my_cache_table', # 数据库表
+            }
+        }
+
+    # 注：执行创建表命令 python manage.py createcachetable
+	*********************************************************************************************************
+	http://www.cnblogs.com/wupeiqi/articles/5246483.html
+	*********************************************************************************************************
+	Memcache 缓存设置
+	Memcache缓存（python-memcached模块）
+	# 此缓存使用python-memcached模块连接memcache
+
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+				'LOCATION': '127.0.0.1:11211',
+			}
+		}
+
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+				'LOCATION': 'unix:/tmp/memcached.sock',
+			}
+		}   
+
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+				'LOCATION': [
+					'172.19.26.240:11211',
+					'172.19.26.242:11211',
+				]
+			}
+		}
+	Memcache缓存 pylibmc模块连接memcache
+		
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+				'LOCATION': '127.0.0.1:11211',
+			}
+		}
+
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+				'LOCATION': '/tmp/memcached.sock',
+			}
+		}   
+
+		CACHES = {
+			'default': {
+				'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+				'LOCATION': [
+					'172.19.26.240:11211',
+					'172.19.26.242:11211',
+				]
+			}
+		}	 
+	
+	
+	
+	Redis缓存设置（依赖：pip3 install django-redis）
+	CACHES = {
+		"default": {
+			"BACKEND": "django_redis.cache.RedisCache",
+			"LOCATION": "redis://127.0.0.1:6379",
+			"OPTIONS": {
+				"CLIENT_CLASS": "django_redis.client.DefaultClient",
+				"CONNECTION_POOL_KWARGS": {"max_connections": 100}
+				# "PASSWORD": "密码",
+			}
+		}
+	}	
+
+
+	全栈使用
+	   使用中间件，经过一系列的认证等操作，如果内容在缓存中存在，则使用FetchFromCacheMiddleware获取内容并返回给用户，
+	   当返回给用户之前，判断缓存中是否已经存在，如果不存在则UpdateCacheMiddleware会将缓存保存至缓存，从而实现全站缓存
+
+    MIDDLEWARE = [
+        'django.middleware.cache.UpdateCacheMiddleware',
+        # 其他中间件...
+        'django.middleware.cache.FetchFromCacheMiddleware',
+    ]
+
+    CACHE_MIDDLEWARE_ALIAS = ""
+    CACHE_MIDDLEWARE_SECONDS = ""
+    CACHE_MIDDLEWARE_KEY_PREFIX = ""
+	
+	单独视图缓存
+	方式一：
+	from django.views.decorators.cache import cache_page
+
+	@cache_page(60 * 15)
+	def my_view(request):
+		...
+
+    方式二：
+        from django.views.decorators.cache import cache_page
+
+        urlpatterns = [
+            url(r'^foo/([0-9]{1,2})/$', cache_page(60 * 15)(my_view)),
+        ]
+		
+	局部视图使用
+    a. 引入TemplateTag
+
+        {% load cache %}
+
+    b. 使用缓存
+
+        {% cache 5000 缓存key %}
+            缓存内容
+        {% endcache %}	
