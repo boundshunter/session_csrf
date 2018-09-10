@@ -42,3 +42,9 @@ def index(request):
 def logout(request):
     request.session.clear()
     return redirect('/login/')
+
+
+def test(request):
+    print("-------------->: testtttttttttttttttttttt")
+    return HttpResponse("OK")
+

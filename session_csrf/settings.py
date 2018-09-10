@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+from django.middleware.csrf import CsrfViewMiddleware
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -47,6 +48,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'Middle.m1.Row1',
+    'Middle.m1.Row2',
+    'Middle.m1.Row3',
 ]
 
 ROOT_URLCONF = 'session_csrf.urls'
